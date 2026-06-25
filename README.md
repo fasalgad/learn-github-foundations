@@ -204,9 +204,63 @@ Vite selecciona automáticamente el siguiente puerto disponible. El puerto real 
 
 ---
 
-## 📝 Notas
+## 📋 Changelog / Cambios Realizados
 
-- El contenido se carga desde `public/content.md` vía `fetch()` — no se bundlea en el JS.
+### ✨ [MEJORA] Rutas dinámicas para content.md (v1.1)
+
+**Cambio:**  
+La carga de `content.md` ahora usa `import.meta.env.BASE_URL` en lugar de una ruta absoluta fija.
+
+**Archivo modificado:** `src/context/StudyContext.jsx`
+
+```javascript
+// ❌ ANTES:
+fetch('/content.md')
+
+// ✅ DESPUÉS:
+fetch(`${import.meta.env.BASE_URL}content.md`)
+```
+
+**Beneficios:**
+- ✅ Funciona en desarrollo local (`/content.md`)
+- ✅ Funciona en GitHub Pages (`/learn-github-foundations/content.md`)
+- ✅ Funciona en dominio propio (`/content.md`)
+- ✅ Funciona en cualquier configuración futura
+- ✅ Ruta se resuelve automáticamente en build-time
+
+**Por qué:**  
+GitHub Pages añade el nombre del repositorio a la URL. Con la ruta fija, `fetch('/content.md')` buscaba en `https://fasalgad.github.io/content.md` (no existe). Ahora busca en `https://fasalgad.github.io/learn-github-foundations/content.md` (existe).
+
+**Estándar:** Esta es la forma recomendada por Vite para manejar rutas dinámicas en diferentes entornos.
+
+---
+
+### ✨ [MEJORA] Permisos de GitHub Actions
+
+**Cambio:**  
+Actualizado el workflow de GitHub Actions para tener permisos de escritura.
+
+**Archivo modificado:** `.github/workflows/deploy.yml`
+
+```yaml
+# ❌ ANTES:
+permissions:
+  contents: read    # Solo lectura
+
+# ✅ DESPUÉS:
+permissions:
+  contents: write   # Lectura + escritura
+```
+
+**Beneficios:**
+- ✅ El bot de GitHub Actions puede hacer push a la rama `gh-pages`
+- ✅ Deployment automático funciona sin errores 403
+- ✅ Seguro: GitHub limita automáticamente el scope del token
+
+---
+
+- El contenido se carga desde `public/content.md` vía `fetch()` usando `import.meta.env.BASE_URL` — no se bundlea en el JS.
+- La ruta se resuelve automáticamente según el entorno (dev, GitHub Pages, dominio propio).
 - El progreso es 100% local: sin backend, sin cuentas, sin conexión requerida.
 - Cada vez que se abre un quiz, las preguntas se seleccionan aleatoriamente del banco.
 - Los intentos anteriores del quiz se guardan; el dashboard muestra el **mejor resultado**.

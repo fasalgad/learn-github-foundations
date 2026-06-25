@@ -18,7 +18,7 @@ export function StudyProvider({ children }) {
 
   // Load content.md on mount
   useEffect(() => {
-    fetch('/content.md')
+    fetch(`${import.meta.env.BASE_URL}content.md`)
       .then((r) => {
         if (!r.ok) throw new Error('No se pudo cargar el contenido.');
         return r.text();
