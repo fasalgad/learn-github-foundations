@@ -259,6 +259,146 @@ permissions:
 
 ---
 
+## 📚 Contenido Hardcodeado vs. Dinámico
+
+Esta sección explica qué está compilado en JavaScript y qué es dinámico en `content.md`.
+
+### ¿Qué es Hardcodeado (compilado en JavaScript)?
+
+Estos archivos están **dentro del bundle** y requieren recompilación para cambios:
+
+| Archivo | Contenido | Cómo Actualizar |
+|---------|-----------|-----------------|
+| `src/data/questions.js` | 320 preguntas (16 módulos × 20) | Editar + `npm run build` + push |
+| `src/utils/markdownParser.js` | Lógica de parseo del contenido | Editar + `npm run build` + push |
+| `src/hooks/useProgress.js` | Schema de localStorage | Editar + `npm run build` + push |
+| `src/context/StudyContext.jsx` | Lógica de navegación | Editar + `npm run build` + push |
+| Componentes React (`src/components/`) | UI, estilos, temas | Editar + `npm run build` + push |
+| `src/index.css` | Estilos globales (Tailwind) | Editar + `npm run build` + push |
+
+### ¿Qué es Dinámico (cargado en tiempo de ejecución)?
+
+Este archivo está **FUERA del bundle** y se carga desde el servidor:
+
+| Archivo | Contenido | Cómo Actualizar |
+|---------|-----------|-----------------|
+| `public/content.md` | **Contenido del curso:** Paths, Módulos, Unidades | ⭐ Editar + commit + push (¡sin recompilación!) |
+
+**Ventaja:** Puedes actualizar el contenido del curso sin tocar JavaScript.
+
+---
+
+### 📝 Guía Práctica: Actualizar Contenido
+
+#### 📖 Caso 1: Cambiar el contenido del curso (rutas, módulos, unidades)
+
+✅ **Fácil — NO requiere recompilación:**
+
+```bash
+# 1. Edita el contenido (en cualquier editor)
+nano public/content.md
+
+# 2. Commit y push a GitHub
+git add public/content.md
+git commit -m "update: correcciones en módulo 5"
+git push origin main
+
+# 3. ¡Listo! GitHub Actions se dispara automáticamente
+# 4. En 1-3 minutos, tu sitio se actualiza con el nuevo contenido
+```
+
+**En desarrollo local:**
+```bash
+npm run dev  # Edita public/content.md y los cambios se ven al instante
+```
+
+#### 🧠 Caso 2: Cambiar las preguntas del quiz
+
+❌ **Complejo — Requiere recompilación:**
+
+```bash
+# 1. Edita el banco de preguntas
+nano src/data/questions.js
+
+# 2. Compila localmente
+npm run build
+
+# 3. Verifica que funciona
+npm run preview
+
+# 4. Commit y push
+git add src/data/questions.js
+git commit -m "update: nuevas preguntas para módulo 5"
+git push origin main
+
+# 5. GitHub Actions compila automáticamente
+# 6. En 1-3 minutos, tu sitio se actualiza con nuevas preguntas
+```
+
+#### 🎨 Caso 3: Cambiar estilos, colores o componentes UI
+
+❌ **Complejo — Requiere recompilación:**
+
+```bash
+# 1. Edita estilos o componentes
+nano src/index.css          # Estilos globales
+# o
+nano src/components/Layout/Header.jsx  # Componentes
+
+# 2. Compila localmente
+npm run build
+
+# 3. Verifica que funciona
+npm run preview
+
+# 4. Commit y push
+git add src/index.css src/components/Layout/Header.jsx
+git commit -m "style: cambiar tema oscuro"
+git push origin main
+
+# 5. GitHub Actions compila y deploya automáticamente
+```
+
+---
+
+### 🎯 Resumen Rápido
+
+```
+PARA ACTUALIZAR...                      RECOMPILACIÓN NECESARIA?
+─────────────────────────────────────────────────────────────
+📖 Contenido del curso (content.md)     ❌ NO (¡super rápido!)
+🧠 Preguntas del quiz                   ✅ SÍ (npm run build)
+🎨 Estilos y UI                         ✅ SÍ (npm run build)
+🗺️ Lógica de navegación                 ✅ SÍ (npm run build)
+🌙 Dark mode, colores, tema             ✅ SÍ (npm run build)
+⚙️ Configuración de Vite                ✅ SÍ (npm run build)
+```
+
+---
+
+### 💡 Futuras Mejoras (Opcional)
+
+Si quieres eliminar el paso de recompilación para otros elementos, tienes opciones:
+
+1. **Mover preguntas a JSON dinámico**
+   - Crear `public/questions.json` en lugar de `src/data/questions.js`
+   - Cargar dinámicamente como `content.md`
+   - Ventaja: Sin recompilación para quiz
+
+2. **Conectar a un CMS**
+   - Usar Contentful, Strapi, Notion API, etc.
+   - Cargar contenido y preguntas desde un servidor remoto
+   - Ventaja: UI para editar sin tocar código
+
+3. **Usar una API REST**
+   - Crear un backend simple (Node, Python, etc.)
+   - Servir contenido dinámicamente
+   - Ventaja: Total flexibilidad
+
+¿Necesitas ayuda implementando alguna de estas opciones?
+
+---
+
 - El contenido se carga desde `public/content.md` vía `fetch()` usando `import.meta.env.BASE_URL` — no se bundlea en el JS.
 - La ruta se resuelve automáticamente según el entorno (dev, GitHub Pages, dominio propio).
 - El progreso es 100% local: sin backend, sin cuentas, sin conexión requerida.
